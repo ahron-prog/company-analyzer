@@ -22,3 +22,5 @@ Requires `SERP_API_KEY` and `ANTHROPIC_API_KEY` in `secrets.json`.
 ## UI
 
 The `ui/index.html` file provides a clean, interactive interface for the analyzer.
+
+<!-- Updated by Liloosh -->
