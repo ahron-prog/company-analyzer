@@ -10,6 +10,11 @@ def get_secrets():
     with open(secrets_path, "r") as f:
         return json.load(f)
 
+def get_system_prompt():
+    prompt_path = os.path.join(os.path.dirname(__file__), "..", "SYSTEM_PROMPT.md")
+    with open(prompt_path, "r") as f:
+        return f.read()
+
 def research_company(company_name):
     secrets = get_secrets()
     serp_key = secrets.get("SERP_API_KEY")
@@ -24,7 +29,8 @@ def research_company(company_name):
         f"{company_name} company profile careers Israel",
         f"{company_name} Glassdoor reviews Israel",
         f"{company_name} recent news layoffs funding",
-        f"{company_name} engineering culture tech stack"
+        f"{company_name} engineering culture tech stack",
+        f"{company_name} salary range senior software engineer Israel"
     ]
     
     search_results = []
@@ -46,62 +52,18 @@ def research_company(company_name):
     # 2. Analyze with LLM
     client = anthropic.Anthropic(api_key=anthropic_key)
     
-    system_prompt = """You are a senior tech job market analyst helping Israeli senior engineers evaluate companies before applying.
-Return ONLY valid JSON (no markdown, no explanation)."""
+    system_prompt = get_system_prompt()
 
     user_prompt = f"""Research this company for a senior Israeli tech engineer: {company_name}
     
 Search Results:
 {json.dumps(search_results, indent=2)}
 
-Return JSON in this exact structure:
-{{
-  "name": "Company Name",
-  "tagline": "One sentence what they do",
-  "founded": "Year",
-  "employees": "e.g. 1,200 globally / 400 in Israel",
-  "hq": "City, Country",
-  "type": "Public / Private / Startup",
-  "stage": "e.g. Series C / Public / Bootstrapped",
-  "sector": "e.g. Cybersecurity / SaaS / Fintech",
-  "israeliRD": true,
-  "summary": "2-3 sentences about what the company does",
-  "future": "2-3 sentences about growth trajectory",
-  "culture": {{
-    "score": 1-10,
-    "description": "2-3 sentences about work culture",
-    "tags": ["Fast-paced", "Autonomous"] 
-  }},
-  "workload": {{
-    "score": 1-10,
-    "description": "2-3 sentences about work hours",
-    "tags": ["Stable hours"] 
-  }},
-  "remote": {{
-    "score": 1-10,
-    "policy": "Hybrid 2 days/week",
-    "description": "1-2 sentences about flexibility"
-  }},
-  "team": {{
-    "description": "2-3 sentences about team composition",
-    "tags": ["Strong seniors"]
-  }},
-  "compensation": {{
-    "seniorRange": "40,000–55,000 NIS/month",
-    "equity": "RSUs typical",
-    "benefits": "Key benefits"
-  }},
-  "pros": ["Pro 1", "Pro 2"],
-  "cons": ["Con 1", "Con 2"],
-  "verdict": "good or mixed or bad",
-  "verdictText": "1-2 sentence overall verdict",
-  "glassdoor": 3.5,
-  "sources": ["brief notes"]
-}}"""
+Follow the instructions in the system prompt and return the JSON object."""
 
     message = client.messages.create(
         model="claude-3-5-sonnet-20240620",
-        max_tokens=2000,
+        max_tokens=2500,
         system=system_prompt,
         messages=[{"role": "user", "content": user_prompt}]
     )

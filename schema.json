@@ -2,19 +2,71 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "company_name": { "type": "string" },
+    "name": { "type": "string" },
+    "tagline": { "type": "string" },
+    "founded": { "type": "string" },
+    "employees": { "type": "string" },
+    "hq": { "type": "string" },
+    "type": { "type": "string" },
+    "stage": { "type": "string" },
+    "sector": { "type": "string" },
+    "israeliRD": { "type": "boolean" },
     "summary": { "type": "string" },
-    "metrics": {
+    "future": { "type": "string" },
+    "culture": {
       "type": "object",
       "properties": {
-        "compensation": { "type": "integer", "minimum": 1, "maximum": 10 },
-        "workload": { "type": "integer", "minimum": 1, "maximum": 10 },
-        "culture": { "type": "integer", "minimum": 1, "maximum": 10 },
-        "stability": { "type": "integer", "minimum": 1, "maximum": 10 }
-      }
+        "score": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["score", "description", "tags"]
     },
-    "tech_stack": { "type": "array", "items": { "type": "string" } },
-    "verdict": { "type": "string" }
+    "workload": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["score", "description", "tags"]
+    },
+    "remote": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "policy": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["score", "policy", "description"]
+    },
+    "team": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["description", "tags"]
+    },
+    "compensation": {
+      "type": "object",
+      "properties": {
+        "seniorRange": { "type": "string" },
+        "equity": { "type": "string" },
+        "benefits": { "type": "string" }
+      },
+      "required": ["seniorRange", "equity", "benefits"]
+    },
+    "pros": { "type": "array", "items": { "type": "string" } },
+    "cons": { "type": "array", "items": { "type": "string" } },
+    "verdict": { "enum": ["good", "mixed", "bad"] },
+    "verdictText": { "type": "string" },
+    "glassdoor": { "type": "number" },
+    "sources": { "type": "array", "items": { "type": "string" } }
   },
-  "required": ["company_name", "summary", "metrics", "tech_stack", "verdict"]
+  "required": [
+    "name", "tagline", "founded", "employees", "hq", "type", "stage", "sector", 
+    "israeliRD", "summary", "future", "culture", "workload", "remote", "team", 
+    "compensation", "pros", "cons", "verdict", "verdictText", "glassdoor", "sources"
+  ]
 }
