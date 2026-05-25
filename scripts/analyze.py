@@ -3,7 +3,7 @@ import sys
 import json
 import argparse
 from serpapi import GoogleSearch
-import anthropic
+from openai import OpenAI
 
 def get_secrets():
     secrets_path = "/home/ubuntu/.nanobot/workspace/secrets.json"
@@ -18,9 +18,9 @@ def get_system_prompt():
 def research_company(company_name):
     secrets = get_secrets()
     serp_key = secrets.get("SERP_API_KEY")
-    anthropic_key = secrets.get("ANTHROPIC_API_KEY")
+    nvidia_key = secrets.get("NVIDIA_API_KEY")
     
-    if not serp_key or not anthropic_key:
+    if not serp_key or not nvidia_key:
         print("Error: Missing API keys in secrets.json")
         sys.exit(1)
 
@@ -35,22 +35,28 @@ def research_company(company_name):
     
     search_results = []
     for query in search_queries:
-        search = GoogleSearch({
-            "q": query,
-            "api_key": serp_key,
-            "num": 5
-        })
-        res = search.get_dict()
-        if "organic_results" in res:
-            for r in res["organic_results"]:
-                search_results.append({
-                    "title": r.get("title"),
-                    "link": r.get("link"),
-                    "snippet": r.get("snippet")
-                })
+        try:
+            search = GoogleSearch({
+                "q": query,
+                "api_key": serp_key,
+                "num": 5
+            })
+            res = search.get_dict()
+            if "organic_results" in res:
+                for r in res["organic_results"]:
+                    search_results.append({
+                        "title": r.get("title"),
+                        "link": r.get("link"),
+                        "snippet": r.get("snippet")
+                    })
+        except Exception as e:
+            print(f"Search error for query '{query}': {e}")
 
-    # 2. Analyze with LLM
-    client = anthropic.Anthropic(api_key=anthropic_key)
+    # 2. Analyze with LLM (using NVIDIA API)
+    client = OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=nvidia_key
+    )
     
     system_prompt = get_system_prompt()
 
@@ -61,14 +67,18 @@ Search Results:
 
 Follow the instructions in the system prompt and return the JSON object."""
 
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20240620",
-        max_tokens=2500,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_prompt}]
+    completion = client.chat.completions.create(
+        model="meta/llama-3.1-70b-instruct",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.2,
+        top_p=0.7,
+        max_tokens=2048,
     )
     
-    return message.content[0].text
+    return completion.choices[0].message.content
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -76,4 +86,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     result = research_company(args.company)
-    print(result)
+    # Clean up potential markdown code blocks
+    if result.startswith("```json"):
+        result = result[7:]
+    if result.endswith("```"):
+        result = result[:-3]
+    print(result.strip())

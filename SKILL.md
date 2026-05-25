@@ -1,26 +1,31 @@
-# Company Analyzer
+# Company Analyzer Skill
 
-Analyze tech companies for senior engineers in Israel. Provides detailed profiles on culture, workload, remote policy, and compensation.
+This skill researches a company and provides a detailed analysis for senior tech engineers in Israel.
 
 ## Usage
 
+Run the analysis script with a company name:
+
 ```bash
-python3 scripts/analyze.py "Company Name"
+python3.12 scripts/analyze.py "Company Name"
 ```
 
-## Features
+## Structure
 
-- **Comprehensive Research**: Uses SerpAPI to gather real-time data from Glassdoor, LinkedIn, and news.
-- **Senior-Focused**: Tailored for senior engineers in the Israeli market.
-- **Visual Profile**: Includes scores for culture, workload, and remote flexibility.
-- **Verdict**: Provides a clear recommendation (Good/Mixed/Bad) for applicants.
+- `SYSTEM_PROMPT.md`: The prompt used by the LLM to generate the analysis.
+- `schema.json`: The JSON schema for the output.
+- `scripts/analyze.py`: The main script that performs web search and LLM analysis.
+
+## Output Format
+
+The output is a JSON object containing:
+- Basic info (name, tagline, founded, etc.)
+- Summary and future outlook
+- Culture, workload, and remote scores (1-10)
+- Team composition and compensation details
+- Pros, cons, and a final verdict
 
 ## Configuration
 
-Requires `SERP_API_KEY` and `ANTHROPIC_API_KEY` in `secrets.json`.
-
-## UI
-
-The `ui/index.html` file provides a clean, interactive interface for the analyzer.
-
-<!-- Updated by Liloosh: 1-2-3-4 -->
+Requires `SERP_API_KEY` and `NVIDIA_API_KEY` in `secrets.json`.
+Uses `meta/llama-3.1-70b-instruct` via NVIDIA API.
